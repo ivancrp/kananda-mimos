@@ -310,7 +310,7 @@ function App() {
       {/* Footer */}
       <footer className="bg-[#9f7cc2] text-white py-8 mt-20">
         <div className="container mx-auto px-4 text-center">
-          <p className="text-lg">© 2024 Kananda Mimos Personalizados. Todos os direitos reservados.</p>
+          <p className="text-lg">© 2025 Kananda Mimos Personalizados. Todos os direitos reservados.</p>
         </div>
       </footer>
     </div>
