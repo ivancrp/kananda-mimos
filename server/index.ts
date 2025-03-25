@@ -2,6 +2,7 @@ import express, { Request, Response, RequestHandler } from 'express';
 import nodemailer from 'nodemailer';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import config from './config';
 
 dotenv.config();
 
@@ -9,7 +10,7 @@ const app = express();
 
 // Configuração do CORS
 app.use(cors({
-  origin: 'http://localhost:5173', // URL do seu frontend Vite
+  origin: config.corsOrigin,
   methods: ['POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type']
 }));
@@ -18,21 +19,21 @@ app.use(express.json());
 
 // Configuração do transportador SMTP
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // true para porta 465, false para outras portas
+  host: config.emailConfig.host,
+  port: config.emailConfig.port,
+  secure: config.emailConfig.secure,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_APP_PASSWORD
   },
   tls: {
-    rejectUnauthorized: true // Aumenta a segurança verificando o certificado
+    rejectUnauthorized: true
   },
-  pool: true, // Mantém a conexão aberta para múltiplos envios
-  maxConnections: 3, // Limita o número de conexões simultâneas
-  maxMessages: 100, // Limita o número de mensagens por conexão (Gmail tem limite diário)
-  socketTimeout: 30000, // 30 segundos de timeout
-  logger: true, // Habilita logs para debug
+  pool: true,
+  maxConnections: config.emailConfig.maxConnections,
+  maxMessages: config.emailConfig.maxMessages,
+  socketTimeout: config.emailConfig.socketTimeout,
+  logger: process.env.NODE_ENV !== 'production' // Logs apenas em desenvolvimento
 });
 
 // Verificar a conexão ao iniciar o servidor
@@ -88,14 +89,15 @@ const handler: RequestHandler = async (req, res) => {
     console.error('Erro ao enviar email:', error);
     res.status(500).json({ 
       success: false, 
-      error: 'Erro ao enviar email' 
+      error: process.env.NODE_ENV === 'production' 
+        ? 'Erro ao enviar email' 
+        : error.message 
     });
   }
 };
 
 app.post('/api/send-email', handler);
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+app.listen(config.port, () => {
+  console.log(`Servidor rodando na porta ${config.port} em modo ${process.env.NODE_ENV || 'development'}`);
 }); 
