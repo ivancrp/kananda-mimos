@@ -1,7 +1,7 @@
-import express from 'express';
+import express, { Request, Response, RequestHandler } from 'express';
 import nodemailer from 'nodemailer';
 import cors from 'cors';
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -18,29 +18,54 @@ app.use(express.json());
 
 // Configuração do transportador SMTP
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
   host: 'smtp.gmail.com',
   port: 587,
   secure: false, // true para porta 465, false para outras portas
   auth: {
-    user: process.env.EMAIL_USER, // seu email do Gmail
-    pass: process.env.EMAIL_APP_PASSWORD // senha de app gerada
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_APP_PASSWORD
+  },
+  tls: {
+    rejectUnauthorized: true // Aumenta a segurança verificando o certificado
+  },
+  pool: true, // Mantém a conexão aberta para múltiplos envios
+  maxConnections: 3, // Limita o número de conexões simultâneas
+  maxMessages: 100, // Limita o número de mensagens por conexão (Gmail tem limite diário)
+  socketTimeout: 30000, // 30 segundos de timeout
+  logger: true, // Habilita logs para debug
+});
+
+// Verificar a conexão ao iniciar o servidor
+transporter.verify(function(error, success) {
+  if (error) {
+    console.error('Erro na configuração do email:', error);
+  } else {
+    console.log('Servidor pronto para enviar emails');
   }
 });
 
-// Rota para envio de email
-app.post('/api/send-email', async (req, res) => {
-  const { name, email, phone, description } = req.body;
+// Definindo a interface para o corpo da requisição
+interface EmailRequest {
+  name: string;
+  email: string;
+  phone: string;
+  description: string;
+}
 
+// Corrigindo a tipagem da rota usando RequestHandler
+const handler: RequestHandler = async (req, res) => {
   try {
+    const { name, email, phone, description } = req.body as EmailRequest;
+
     // Verificar se todos os campos necessários estão presentes
     if (!name || !email || !phone || !description) {
-      return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
+      res.status(400).json({ error: 'Todos os campos são obrigatórios' });
+      return;
     }
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: 'kanandav19@gmail.com',
+      to: 'kanandamimos@gmail.com',
       subject: `Nova Solicitação de Orçamento - ${name}`,
       html: `
         <h2>Nova Solicitação de Orçamento</h2>
@@ -66,7 +91,9 @@ app.post('/api/send-email', async (req, res) => {
       error: 'Erro ao enviar email' 
     });
   }
-});
+};
+
+app.post('/api/send-email', handler);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
