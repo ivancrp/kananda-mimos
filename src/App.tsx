@@ -295,7 +295,7 @@ function App() {
             <span>WhatsApp</span>
           </a>
           <a 
-            href="mailto:kanandav19@gmail.com" 
+            href="mailto:kanandamimos@gmail.com" 
             className="flex items-center bg-white px-6 py-4 rounded-lg shadow-md hover:shadow-lg transition-shadow text-[#e94d97] hover:text-[#c5a34c]"
           >
             <Mail className="w-6 h-6 mr-3" />
