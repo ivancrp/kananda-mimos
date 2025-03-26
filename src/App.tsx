@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Gift, Package, Star, Phone, Mail, MapIcon, Menu, X, Send } from 'lucide-react';
 import emailjs from '@emailjs/browser';
+import InputMask from 'react-input-mask';
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -23,10 +24,10 @@ function App() {
 
     try {
       await emailjs.send(
-        'YOUR_SERVICE_ID', // Substitua pelo seu Service ID do EmailJS
-        'YOUR_TEMPLATE_ID', // Substitua pelo seu Template ID do EmailJS
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
         formData,
-        'YOUR_PUBLIC_KEY' // Substitua pela sua Public Key do EmailJS
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY
       );
       
       alert('Orçamento solicitado com sucesso! Entraremos em contato em breve.');
@@ -199,13 +200,15 @@ function App() {
               </div>
               <div>
                 <label htmlFor="phone" className="block text-gray-700 mb-2">Telefone</label>
-                <input
+                <InputMask
+                  mask="(99) 99999-9999"
                   type="tel"
                   id="phone"
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
                   className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-[#e94d97] focus:ring focus:ring-[#e94d97] focus:ring-opacity-50"
+                  placeholder="(85) 99999-9999"
                   required
                 />
               </div>
