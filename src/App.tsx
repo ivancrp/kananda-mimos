@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Gift, Package, Star, Phone, Mail, MapIcon, Menu, X, Send } from 'lucide-react';
+import { Gift, Package, Star, Phone, Mail, MapIcon, Send } from 'lucide-react';
 import emailjs from '@emailjs/browser';
 import InputMask from 'react-input-mask';
 
 function App() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
