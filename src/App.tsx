@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Gift, Package, Star, Phone, Mail, MapIcon, Menu, X, Send } from 'lucide-react';
+import emailjs from '@emailjs/browser';
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,50 +22,20 @@ function App() {
     setIsLoading(true);
 
     try {
-      console.log('Tentando enviar email...');
-      const response = await fetch('http://localhost:3001/api/send-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(formData),
-        mode: 'cors'
-      });
-
-      if (!response.ok) {
-        throw new Error(`Erro HTTP: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('Resposta do servidor:', data);
+      await emailjs.send(
+        'YOUR_SERVICE_ID', // Substitua pelo seu Service ID do EmailJS
+        'YOUR_TEMPLATE_ID', // Substitua pelo seu Template ID do EmailJS
+        formData,
+        'YOUR_PUBLIC_KEY' // Substitua pela sua Public Key do EmailJS
+      );
       
       alert('Orçamento solicitado com sucesso! Entraremos em contato em breve.');
       setFormData({ name: '', email: '', phone: '', description: '' });
     } catch (error) {
-      console.error('Erro detalhado:', error);
-      if (error instanceof TypeError && error.message === 'Failed to fetch') {
-        alert('Não foi possível conectar ao servidor. Por favor, verifique se o servidor está rodando.');
-      } else {
-        alert('Ocorreu um erro ao enviar sua solicitação. Por favor, tente novamente.');
-      }
+      console.error('Erro ao enviar email:', error);
+      alert('Ocorreu um erro ao enviar sua solicitação. Por favor, tente novamente.');
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const testConnection = async () => {
-    try {
-      const response = await fetch('http://localhost:3001/api/send-email', {
-        method: 'OPTIONS'
-      });
-      if (response.ok) {
-        alert('Conexão com o servidor estabelecida com sucesso!');
-      } else {
-        alert('Servidor respondeu com erro: ' + response.status);
-      }
-    } catch (error) {
-      alert('Não foi possível conectar ao servidor. Verifique se ele está rodando.');
     }
   };
 
@@ -263,13 +234,6 @@ function App() {
                     <span>Enviar Pedido</span>
                   </>
                 )}
-              </button>
-              <button
-                type="button"
-                onClick={testConnection}
-                className="text-[#e94d97] underline"
-              >
-                Testar Conexão
               </button>
             </div>
           </form>
